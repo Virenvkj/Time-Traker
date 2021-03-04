@@ -1,3 +1,4 @@
+import 'package:Time_Tracker/core/services/auth_firebase.dart';
 import 'package:Time_Tracker/ui/home/home_screen.dart';
 import 'package:Time_Tracker/ui/sign_in/sign_in_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -10,27 +11,32 @@ class LandingPage extends StatefulWidget {
 
 class _LandingPageState extends State<LandingPage> {
   bool newUser;
+  User currentUser;
 
   //Following method holds the logic for checking the user is a new user or an existing user.
 
-  void checkNewUser() {
-    User _user = FirebaseAuth.instance.currentUser;
-    print('User Id : ${_user.uid}');
-    if (_user == null) {
+  void checkNewUser(User user) {
+    if (user == null) {
       newUser = true;
     } else {
+      print('User Id : ${user.uid}');
       newUser = false;
     }
   }
 
   @override
   void initState() {
-    checkNewUser();
+    currentUser = FirebaseAuth.instance.currentUser;
+    checkNewUser(currentUser);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return newUser ? SignInPage() : HomeScreen(); //Displaying screens on the basis of user existing or new.
+    return newUser
+        ? SignInPage()
+        : HomeScreen(
+            user: currentUser,
+          ); //Displaying screens on the basis of user existing or new.
   }
 }

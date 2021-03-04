@@ -6,8 +6,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {
-  
-  //Following method holds the logic for user logout. 
+  final User user;
+  HomeScreen({@required this.user});
+
+  //Following method holds the logic for user logout.
 
   Future<void> logout(BuildContext context) async {
     // await FirebaseAuth.instance.currentUser.delete();
@@ -33,7 +35,7 @@ class HomeScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: Icon(Icons.logout),
-            onPressed: () => logout(context),  //calling out logout method.
+            onPressed: () => logout(context), //calling out logout method.
           ),
         ],
       ),

@@ -7,6 +7,7 @@ import 'package:Time_Tracker/core/constants/size_config.dart';
 import 'package:Time_Tracker/ui/home/home_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+//import 'package:google_sign_in/google_sign_in.dart';
 
 class SignInPage extends StatefulWidget {
   @override
@@ -21,14 +22,20 @@ Future<void> signInAnonymously(BuildContext context) async {
   //Anonymous Sign in
   final userCredentials = await _firebaseAuth.signInAnonymously();
   if (userCredentials.user.uid != null) {
+    print('User Id : ${userCredentials.user.uid}');
     Navigator.of(context).pushReplacement(
       new MaterialPageRoute(
-        builder: (context) => HomeScreen(),
+        builder: (context) => HomeScreen(
+          user: userCredentials.user,
+        ),
       ),
     );
   }
-  print('User Id : ${userCredentials.user.uid}');
 }
+
+// signInWithGoogle(BuildContext context) async{
+//   final googleSignIn =
+// }
 
 class _SignInPageState extends State<SignInPage> {
   @override
