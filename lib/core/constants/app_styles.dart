@@ -12,4 +12,13 @@ class AppStyles {
         fontWeight: FontWeight.w500,
         color: AppColors.defaultWhite,
       );
+  static TextStyle indigoBold18() => TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.w500,
+        color: AppColors.defaultIndigo,
+      );
+  static TextStyle blackNormal16() => TextStyle(
+        color: AppColors.defaultBlack,
+        fontSize: 16,
+      );
 }

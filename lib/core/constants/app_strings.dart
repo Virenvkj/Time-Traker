@@ -7,4 +7,10 @@ class AppStrings {
   static const signInWithEmail = 'Sign in with Email';
   static const goAnonymous = 'Go Anonymous';
   static const homePage = 'Home Page';
+  static const emailHintText = 'abc@gmail.com';
+  static const email = 'Email';
+  static const password = 'Password';
+  static const register = 'Register';
+  static const needAnAccReg = 'Need an account? Register';
+  static const alreadyHaveAnAccount = 'Already have an account?';
 }
