@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 
 class SignInButton extends StatelessWidget {
   @required
+  final bool enabled;
+  @required
   final String buttonText;
   @required
   final Widget icon;
@@ -13,7 +15,8 @@ class SignInButton extends StatelessWidget {
   @required
   final Function onPress;
   SignInButton(
-      {this.buttonText,
+      {this.enabled,
+      this.buttonText,
       this.icon,
       this.buttonColor,
       this.textColor,
@@ -22,7 +25,7 @@ class SignInButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onPress,
+      onTap: enabled ? onPress : null,
       child: Container(
         padding: SizeConfig.paddingH20V10,
         width: MediaQuery.of(context).size.width,

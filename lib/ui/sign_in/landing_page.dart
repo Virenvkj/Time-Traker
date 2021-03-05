@@ -1,4 +1,3 @@
-import 'package:Time_Tracker/core/services/auth_firebase.dart';
 import 'package:Time_Tracker/ui/home/home_screen.dart';
 import 'package:Time_Tracker/ui/sign_in/sign_in_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -34,7 +33,7 @@ class _LandingPageState extends State<LandingPage> {
   @override
   Widget build(BuildContext context) {
     return newUser
-        ? SignInPage()
+        ? SignInPage.create(context)
         : HomeScreen(
             user: currentUser,
           ); //Displaying screens on the basis of user existing or new.

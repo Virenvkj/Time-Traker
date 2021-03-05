@@ -10,4 +10,5 @@ class AppColors {
   static Color defaultBlue = Colors.blue;
   static Color defaultIndigo = Colors.indigo;
   static Color defaultGrey = Colors.grey;
+  static Color defaultRed = Colors.red;
 }

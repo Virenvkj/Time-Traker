@@ -12,12 +12,24 @@ class EmailSignInForm extends StatefulWidget {
 }
 
 class _EmailSignInFormState extends State<EmailSignInForm> {
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    emailFocusNode.dispose();
+    passwordFocusNode.dispose();
+    super.dispose();
+  }
+
   final _firebaseAuth = FirebaseAuth.instance;
   bool signInEnable = true;
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   final FocusNode emailFocusNode = FocusNode();
   final FocusNode passwordFocusNode = FocusNode();
+  bool autoValidation = false;
+  final _formKey = GlobalKey<FormState>();
+  bool isLoading = false;
 
   Future<void> signInWithEmailandPassword(
       {String email, String password}) async {
@@ -38,7 +50,11 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
         );
       }
     } catch (error) {
-      print(error);
+      AppConstants.showFailedToast(message: error.toString());
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -59,7 +75,11 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
         });
       }
     } catch (error) {
-      print(error);
+      AppConstants.showFailedToast(message: error.toString());
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -74,86 +94,120 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
   }
 
   void onSubmit() {
-    print(
-        'Email : ${emailController.text}\n Password : ${passwordController.text}');
-    signInEnable
-        ? signInWithEmailandPassword(
-            email: emailController.text.trim(),
-            password: passwordController.text.trim(),
-          )
-        : createUserWithEmailandPassword(
-            email: emailController.text.trim(),
-            password: passwordController.text.trim(),
-          );
+    setState(() {
+      isLoading = true;
+    });
+    if (_formKey.currentState.validate()) {
+      print(
+          'Email : ${emailController.text}\n Password : ${passwordController.text}');
+      signInEnable
+          ? signInWithEmailandPassword(
+              email: emailController.text.trim(),
+              password: passwordController.text.trim(),
+            )
+          : createUserWithEmailandPassword(
+              email: emailController.text.trim(),
+              password: passwordController.text.trim(),
+            );
+    } else {
+      setState(
+        () {
+          autoValidation = true;
+        },
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            onChanged: (val) {
-              setState(() {});
-            },
-            onEditingComplete: () {
-              FocusScope.of(context).requestFocus(passwordFocusNode);
-            },
-            focusNode: emailFocusNode,
-            textInputAction: TextInputAction.next,
-            keyboardType: TextInputType.emailAddress,
-            autocorrect: false,
-            controller: emailController,
-            decoration: InputDecoration(
-              hintText: AppStrings.emailHintText,
-              labelText: AppStrings.email,
-            ),
-          ),
-          AppConstants.sizer(context: context, height: 0.02, width: 0),
-          TextField(
-            onChanged: (val) {
-              setState(() {});
-            },
-            focusNode: passwordFocusNode,
-            textInputAction: TextInputAction.done,
-            autocorrect: false,
-            obscureText: true,
-            controller: passwordController,
-            decoration: InputDecoration(
-              labelText: AppStrings.password,
-            ),
-          ),
-          AppConstants.sizer(context: context, height: 0.02, width: 0),
-          Container(
-            height: MediaQuery.of(context).size.height * 0.07,
-            width: MediaQuery.of(context).size.width,
-            child: FlatButton(
-              onPressed: (emailController.text.isNotEmpty &&
-                      passwordController.text.isNotEmpty)
-                  ? onSubmit
-                  : null,
-              disabledColor: AppColors.defaultGrey,
-              color: AppColors.defaultIndigo,
-              child: Text(
-                signInEnable ? AppStrings.signIn : AppStrings.register,
-                style: AppStyles.whiteBold22(),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextFormField(
+              autovalidate: autoValidation,
+              validator: (value) {
+                if (value.isEmpty) {
+                  return AppStrings.emailErrorText;
+                }
+                return null;
+              },
+              onChanged: (val) {
+                setState(() {});
+              },
+              onEditingComplete: () {
+                FocusScope.of(context).requestFocus(passwordFocusNode);
+              },
+              focusNode: emailFocusNode,
+              textInputAction: TextInputAction.next,
+              keyboardType: TextInputType.emailAddress,
+              autocorrect: false,
+              controller: emailController,
+              decoration: InputDecoration(
+                enabled: isLoading ? false : true,
+                hintText: AppStrings.emailHintText,
+                labelText: AppStrings.email,
               ),
             ),
-          ),
-          AppConstants.sizer(context: context, height: 0.02, width: 0),
-          InkWell(
-            onTap: onChangeLoginType,
-            child: Text(
-              signInEnable
-                  ? AppStrings.needAnAccReg
-                  : AppStrings.alreadyHaveAnAccount,
-              style: AppStyles.blackNormal16(),
+            AppConstants.sizer(context: context, height: 0.02, width: 0),
+            TextFormField(
+              autovalidate: autoValidation,
+              validator: (value) {
+                if (value.isEmpty) {
+                  return AppStrings.passwordErrorText;
+                } else if (value.length < 6) {
+                  return AppStrings.passwordLengthErrorText;
+                }
+                return null;
+              },
+              onChanged: (val) {
+                setState(() {});
+              },
+              focusNode: passwordFocusNode,
+              textInputAction: TextInputAction.done,
+              autocorrect: false,
+              obscureText: true,
+              controller: passwordController,
+              decoration: InputDecoration(
+                enabled: isLoading ? false : true,
+                labelText: AppStrings.password,
+              ),
             ),
-          ),
-          AppConstants.sizer(context: context, height: 0.02, width: 0),
-        ],
+            AppConstants.sizer(context: context, height: 0.02, width: 0),
+            !isLoading
+                ? Container(
+                    height: MediaQuery.of(context).size.height * 0.07,
+                    width: MediaQuery.of(context).size.width,
+                    child: FlatButton(
+                      onPressed: (emailController.text.isNotEmpty &&
+                              passwordController.text.isNotEmpty)
+                          ? onSubmit
+                          : null,
+                      disabledColor: AppColors.defaultGrey,
+                      color: AppColors.defaultIndigo,
+                      child: Text(
+                        signInEnable ? AppStrings.signIn : AppStrings.register,
+                        style: AppStyles.whiteBold22(),
+                      ),
+                    ),
+                  )
+                : AppConstants.circularProgressIndicator(),
+            AppConstants.sizer(context: context, height: 0.02, width: 0),
+            InkWell(
+              onTap: isLoading ? null : onChangeLoginType,
+              child: Text(
+                signInEnable
+                    ? AppStrings.needAnAccReg
+                    : AppStrings.alreadyHaveAnAccount,
+                style: AppStyles.blackNormal16(),
+              ),
+            ),
+            AppConstants.sizer(context: context, height: 0.02, width: 0),
+          ],
+        ),
       ),
     );
   }
